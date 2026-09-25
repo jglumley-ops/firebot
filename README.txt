@@ -1,10 +1,11 @@
-FireBot PWA 2.1.2
+FireBot PWA 2.1.3
 =================
 
 This is a static Progressive Web App. No server-side code or database is required.
 
-WHAT'S NEW IN 2.1.2
-- Added smooth-bore tip sizes 15/16 in. and 1 3/16 in.
+WHAT'S NEW IN 2.1.3
+- Added smooth-bore tip sizes 15/16 in., 1 1/16 in., and 1 3/16 in.
+- Added 40 psi to the smooth-bore nozzle-pressure selector.
 - Added a Standard / Updated friction-coefficient selector.
 - Standard preserves the original FireBot 1.02 coefficient table.
 - Updated uses the supplied updated hose-friction coefficients based on charged/measured internal hose diameter.
@@ -22,7 +23,7 @@ FILES
 - icons/
 
 UPDATING AN EXISTING GITHUB PAGES INSTALL
-Upload these files over the existing files in the repository root and commit the changes. The service-worker cache name was bumped to v2.1.2 so installed phones can receive the new app files.
+Upload these files over the existing files in the repository root and commit the changes. The service-worker cache name was bumped to v2.1.3 so installed phones can receive the new app files.
 
 DEPLOYMENT
 PWAs need HTTPS for installation and service-worker offline caching (localhost is the development exception). Upload the CONTENTS of this folder to an HTTPS static host such as GitHub Pages.

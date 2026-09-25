@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#171a1f">
+  <meta name="description" content="FireBot pump discharge pressure calculator. Offline-capable progressive web app.">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FireBot">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+  <title>FireBot</title>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <img src="icons/icon-192.png" alt="" class="brand-icon" width="52" height="52">
+      <div>
+        <h1>FireBot</h1>
+        <p>Pump pressure calculator</p>
+      </div>
+    </div>
+    <button id="installBtn" class="ghost-button" type="button">Install</button>
+  </header>
+
+  <main>
+    <section id="installHint" class="install-hint hidden" aria-live="polite"></section>
+
+    <section class="calculator-card" aria-labelledby="calculatorTitle">
+      <div class="section-heading">
+        <div>
+          <h2 id="calculatorTitle">PDP Calculator</h2>
+          <p>Original FireBot calculation set, rebuilt for modern phones.</p>
+        </div>
+        <span class="offline-badge" id="networkBadge">Offline ready</span>
+      </div>
+
+      <fieldset class="segmented-fieldset">
+        <legend>Nozzle type</legend>
+        <div class="segmented" role="radiogroup" aria-label="Nozzle type">
+          <label>
+            <input type="radio" name="nozzleType" value="fog" checked>
+            <span>Fog</span>
+          </label>
+          <label>
+            <input type="radio" name="nozzleType" value="smooth">
+            <span>Smooth bore</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="form-grid">
+        <label class="field fog-only" for="fogGpm">
+          <span>GPM</span>
+          <select id="fogGpm"></select>
+        </label>
+
+        <label class="field smooth-only hidden" for="smoothNozzle">
+          <span>Nozzle</span>
+          <select id="smoothNozzle"></select>
+        </label>
+
+        <label class="field smooth-only hidden" for="nozzlePressure">
+          <span>Nozzle pressure</span>
+          <select id="nozzlePressure"></select>
+        </label>
+
+        <label class="field" for="hoseSize">
+          <span>Hose size</span>
+          <select id="hoseSize"></select>
+        </label>
+
+        <label class="field" for="hoseLength">
+          <span>Hose length</span>
+          <select id="hoseLength"></select>
+        </label>
+
+        <label class="field" for="elevation">
+          <span>Elevation</span>
+          <select id="elevation"></select>
+        </label>
+
+        <label class="field" for="appliances">
+          <span>Appliances</span>
+          <select id="appliances"></select>
+        </label>
+      </div>
+
+      <button id="calculateBtn" class="primary-button" type="button">Calculate PDP</button>
+    </section>
+
+    <section id="resultsCard" class="results-card" aria-live="polite">
+      <div class="pdp-result">
+        <span class="eyebrow">Pump Discharge Pressure</span>
+        <div class="pdp-value"><span id="pdpValue">—</span> <small>psi</small></div>
+      </div>
+      <div class="metrics">
+        <div><span>Flow</span><strong id="gpmValue">—</strong><small>gpm</small></div>
+        <div><span>Nozzle</span><strong id="npValue">—</strong><small>psi</small></div>
+        <div><span>Friction</span><strong id="flValue">—</strong><small>psi</small></div>
+        <div><span>Elevation</span><strong id="epValue">—</strong><small>psi</small></div>
+        <div><span>Appliance</span><strong id="apfValue">—</strong><small>psi</small></div>
+      </div>
+      <button id="mathBtn" class="secondary-button" type="button" disabled>Show Math</button>
+    </section>
+
+    <section class="safety-note">
+      <strong>Reference tool.</strong> Verify calculations against your department SOPs, training, equipment, and actual pump-panel conditions before operational use.
+    </section>
+
+    <section class="about-card">
+      <details>
+        <summary>About FireBot PWA</summary>
+        <p>This rebuild reproduces the formulas and lookup values recovered from the original FireBot 1.02 Android app. It has no server dependency and is designed to work offline after the first successful load.</p>
+        <p><strong>Recovered formulas:</strong> smooth-bore flow = 29.7 × d² × √NP; friction loss = C × Q² × L; elevation = 0.5 × height in feet or 5 × (stories − 1); PDP = NP + FL + APF + EP.</p>
+        <p>For flows below 350 gpm, the original app applies 0 psi appliance loss. At 350 gpm or more, it applies 25 psi for a master stream or 10 psi per selected appliance.</p>
+      </details>
+    </section>
+  </main>
+
+  <dialog id="mathDialog">
+    <form method="dialog">
+      <div class="dialog-header">
+        <h2>Calculation</h2>
+        <button class="dialog-close" aria-label="Close">×</button>
+      </div>
+      <pre id="mathOutput"></pre>
+      <button class="primary-button" value="close">Done</button>
+    </form>
+  </dialog>
+
+  <dialog id="installDialog">
+    <form method="dialog">
+      <div class="dialog-header">
+        <h2>Install FireBot</h2>
+        <button class="dialog-close" aria-label="Close">×</button>
+      </div>
+      <div id="installDialogBody" class="dialog-copy"></div>
+      <button class="primary-button" value="close">Done</button>
+    </form>
+  </dialog>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

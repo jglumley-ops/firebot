@@ -10,7 +10,7 @@ const DATA = {
   ],
   fogGpm: [50, 60, 70, 80, 95, 100, 125, 150, 180, 200, 250, 300, 350, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200],
   nozzlePressure: [50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100],
-  hose: [
+  standardHose: [
     [1100, "3/4 in."],
     [150, "1 in."],
     [24, "1 1/2 in."],
@@ -28,6 +28,15 @@ const DATA = {
     [0.05, "6 in."],
     [0.052, "6 in. Standpipe"]
   ],
+  // Updated values transcribed from the user-provided Table 7-3,
+  // "Updated Coefficient of Friction Approximation Based on the Internal Diameter of Fire Hose."
+  updatedHose: [
+    { value: "1.5", label: "1 1/2 in. nominal", diameters: [[1.5, 29], [1.6, 21], [1.65, 18.3], [1.7, 15.75]] },
+    { value: "1.75", label: "1 3/4 in. nominal", diameters: [[1.75, 13.2], [1.8, 11.5], [1.85, 10], [1.9, 8.75], [1.95, 7.7]] },
+    { value: "2", label: "2 in. nominal (1 1/2 in. couplings)", diameters: [[2.0, 7], [2.15, 4.7], [2.2, 4.15]] },
+    { value: "2.25", label: "2 1/4 in. nominal", diameters: [[2.25, 3.6], [2.3, 3.2]] },
+    { value: "2.5", label: "2 1/2 in. nominal", diameters: [[2.5, 2.15], [2.6, 1.8], [2.7, 1.7], [2.75, 1.35], [2.8, 1.24], [2.85, 1.14], [2.9, 1.05]] }
+  ],
   hoseLength: [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600],
   elevation: [
     [-200, "-200 ft."], [-100, "-100 ft."], [0, "0 ft."], [100, "100 ft."], [200, "200 ft."],
@@ -44,10 +53,11 @@ const DATA = {
 const $ = (id) => document.getElementById(id);
 const els = {
   fogGpm: $("fogGpm"), smoothNozzle: $("smoothNozzle"), nozzlePressure: $("nozzlePressure"),
-  hoseSize: $("hoseSize"), hoseLength: $("hoseLength"), elevation: $("elevation"), appliances: $("appliances"),
+  hoseSize: $("hoseSize"), updatedHoseSize: $("updatedHoseSize"), updatedInternalDiameter: $("updatedInternalDiameter"),
+  coefficientNote: $("coefficientNote"), hoseLength: $("hoseLength"), elevation: $("elevation"), appliances: $("appliances"),
   calculateBtn: $("calculateBtn"), mathBtn: $("mathBtn"), mathDialog: $("mathDialog"), mathOutput: $("mathOutput"),
   installBtn: $("installBtn"), installDialog: $("installDialog"), installDialogBody: $("installDialogBody"), installHint: $("installHint"),
-  pdpValue: $("pdpValue"), gpmValue: $("gpmValue"), npValue: $("npValue"), flValue: $("flValue"), epValue: $("epValue"), apfValue: $("apfValue"),
+  pdpValue: $("pdpValue"), gpmValue: $("gpmValue"), npValue: $("npValue"), flValue: $("flValue"), epValue: $("epValue"), apfValue: $("apfValue"), cValue: $("cValue"),
   networkBadge: $("networkBadge")
 };
 
@@ -67,7 +77,9 @@ function initOptions() {
   addOptions(els.fogGpm, DATA.fogGpm, (v) => `${v.toLocaleString()} gpm`);
   addOptions(els.smoothNozzle, DATA.smoothNozzles);
   addOptions(els.nozzlePressure, DATA.nozzlePressure, (v) => `${v} psi`);
-  addOptions(els.hoseSize, DATA.hose);
+  addOptions(els.hoseSize, DATA.standardHose);
+  addOptions(els.updatedHoseSize, DATA.updatedHose.map((item) => [item.value, item.label]));
+  populateUpdatedDiameters();
   addOptions(els.hoseLength, DATA.hoseLength, (v) => `${v} ft.`);
   addOptions(els.elevation, DATA.elevation);
   addOptions(els.appliances, DATA.appliances);
@@ -77,6 +89,9 @@ function initOptions() {
   els.smoothNozzle.value = "1.5";
   els.nozzlePressure.value = "50";
   els.hoseSize.value = "15.5";
+  els.updatedHoseSize.value = "1.75";
+  populateUpdatedDiameters();
+  els.updatedInternalDiameter.value = "1.75";
   els.hoseLength.value = "200";
   els.elevation.value = "0";
   els.appliances.value = "0";
@@ -84,6 +99,38 @@ function initOptions() {
 
 function nozzleType() {
   return document.querySelector('input[name="nozzleType"]:checked').value;
+}
+
+function coefficientMode() {
+  return document.querySelector('input[name="coefficientMode"]:checked').value;
+}
+
+function selectedUpdatedHose() {
+  return DATA.updatedHose.find((item) => item.value === els.updatedHoseSize.value) || DATA.updatedHose[0];
+}
+
+function populateUpdatedDiameters(preferredValue = null) {
+  const hose = selectedUpdatedHose();
+  els.updatedInternalDiameter.replaceChildren();
+  hose.diameters.forEach(([diameter, coefficient]) => {
+    const opt = document.createElement("option");
+    opt.value = String(diameter);
+    opt.dataset.coefficient = String(coefficient);
+    opt.textContent = `${diameter} in. I.D. — C ${coefficient}`;
+    els.updatedInternalDiameter.appendChild(opt);
+  });
+  if (preferredValue != null && Array.from(els.updatedInternalDiameter.options).some((o) => o.value === String(preferredValue))) {
+    els.updatedInternalDiameter.value = String(preferredValue);
+  }
+}
+
+function toggleCoefficientFields() {
+  const updated = coefficientMode() === "updated";
+  document.querySelectorAll(".standard-coefficient-only").forEach((el) => el.classList.toggle("hidden", updated));
+  document.querySelectorAll(".updated-coefficient-only").forEach((el) => el.classList.toggle("hidden", !updated));
+  els.coefficientNote.textContent = updated
+    ? "Updated mode uses Table 7-3 and the charged/measured internal hose diameter. Only the hose sizes shown in the supplied table are available."
+    : "Standard mode uses the original FireBot coefficient values.";
 }
 
 function toggleNozzleFields() {
@@ -107,7 +154,18 @@ function calculate() {
     GPM = 29.7 * Math.pow(diameter, 2) * Math.sqrt(NP);
   }
 
-  const C = Number(els.hoseSize.value);
+  let C;
+  let coefficientMath;
+  if (coefficientMode() === "updated") {
+    const hose = selectedUpdatedHose();
+    const selectedDiameter = els.updatedInternalDiameter.selectedOptions[0];
+    C = Number(selectedDiameter.dataset.coefficient);
+    coefficientMath = `Coefficient set = Updated Table 7-3\nHose = ${hose.label}\nMeasured I.D. = ${selectedDiameter.value} in.\nC = ${fmtCoefficient(C)}`;
+  } else {
+    C = Number(els.hoseSize.value);
+    const hoseLabel = els.hoseSize.selectedOptions[0]?.textContent || "Standard hose";
+    coefficientMath = `Coefficient set = Standard / original FireBot\nHose = ${hoseLabel}\nC = ${fmtCoefficient(C)}`;
+  }
   const hoseLengthFt = Number(els.hoseLength.value);
   const Q = GPM / 100;
   const L = hoseLengthFt / 100;
@@ -139,6 +197,7 @@ function calculate() {
   els.flValue.textContent = fmt(FL);
   els.epValue.textContent = fmt(EP);
   els.apfValue.textContent = fmt(APF);
+  els.cValue.textContent = fmtCoefficient(C);
   els.mathBtn.disabled = false;
 
   const nozzleMath = type === "fog"
@@ -154,8 +213,10 @@ function calculate() {
   els.mathOutput.textContent = [
     nozzleMath,
     "",
+    coefficientMath,
+    "",
     `FL = C × Q² × L`,
-    `FL = ${C.toFixed(3)} × (${fmt(Q)})² × ${fmt(L)}`,
+    `FL = ${fmtCoefficient(C)} × (${fmt(Q)})² × ${fmt(L)}`,
     `FL = ${fmt(FL)} psi`,
     "",
     elevationMath,
@@ -175,14 +236,21 @@ function fmt(value) {
   return safe.toFixed(2);
 }
 
+function fmtCoefficient(value) {
+  return Number(value).toLocaleString(undefined, { maximumFractionDigits: 3 });
+}
+
 const SETTINGS_KEY = "firebot-pwa-settings-v1";
 function saveSettings() {
   const data = {
     nozzleType: nozzleType(),
+    coefficientMode: coefficientMode(),
     fogGpm: els.fogGpm.value,
     smoothNozzle: els.smoothNozzle.value,
     nozzlePressure: els.nozzlePressure.value,
     hoseSize: els.hoseSize.value,
+    updatedHoseSize: els.updatedHoseSize.value,
+    updatedInternalDiameter: els.updatedInternalDiameter.value,
     hoseLength: els.hoseLength.value,
     elevation: els.elevation.value,
     appliances: els.appliances.value
@@ -195,9 +263,15 @@ function restoreSettings() {
     if (!data) return;
     const radio = document.querySelector(`input[name="nozzleType"][value="${data.nozzleType}"]`);
     if (radio) radio.checked = true;
+    const coefficientRadio = document.querySelector(`input[name="coefficientMode"][value="${data.coefficientMode || "standard"}"]`);
+    if (coefficientRadio) coefficientRadio.checked = true;
     ["fogGpm", "smoothNozzle", "nozzlePressure", "hoseSize", "hoseLength", "elevation", "appliances"].forEach((key) => {
       if (data[key] != null && Array.from(els[key].options).some((o) => o.value === String(data[key]))) els[key].value = String(data[key]);
     });
+    if (data.updatedHoseSize != null && Array.from(els.updatedHoseSize.options).some((o) => o.value === String(data.updatedHoseSize))) {
+      els.updatedHoseSize.value = String(data.updatedHoseSize);
+    }
+    populateUpdatedDiameters(data.updatedInternalDiameter);
   } catch (_) { /* Ignore corrupt local settings. */ }
 }
 
@@ -246,13 +320,22 @@ function updateNetworkBadge() {
 initOptions();
 restoreSettings();
 toggleNozzleFields();
+toggleCoefficientFields();
 updateNetworkBadge();
 
 document.querySelectorAll('input[name="nozzleType"]').forEach((radio) => radio.addEventListener("change", () => {
   toggleNozzleFields();
   saveSettings();
 }));
-[els.fogGpm, els.smoothNozzle, els.nozzlePressure, els.hoseSize, els.hoseLength, els.elevation, els.appliances].forEach((select) => select.addEventListener("change", saveSettings));
+document.querySelectorAll('input[name="coefficientMode"]').forEach((radio) => radio.addEventListener("change", () => {
+  toggleCoefficientFields();
+  saveSettings();
+}));
+els.updatedHoseSize.addEventListener("change", () => {
+  populateUpdatedDiameters();
+  saveSettings();
+});
+[els.fogGpm, els.smoothNozzle, els.nozzlePressure, els.hoseSize, els.updatedInternalDiameter, els.hoseLength, els.elevation, els.appliances].forEach((select) => select.addEventListener("change", saveSettings));
 els.calculateBtn.addEventListener("click", calculate);
 els.mathBtn.addEventListener("click", () => els.mathDialog.showModal());
 window.addEventListener("online", updateNetworkBadge);

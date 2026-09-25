@@ -155,3 +155,10 @@ dialog form { padding: 20px; }
 @media (display-mode: standalone) {
   #installBtn, #installHint { display: none !important; }
 }
+
+.field-note {
+  margin: 8px 2px 0;
+  color: var(--muted);
+  font-size: .78rem;
+  line-height: 1.45;
+}

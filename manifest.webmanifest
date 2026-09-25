@@ -2,7 +2,7 @@
   "id": "./",
   "name": "FireBot",
   "short_name": "FireBot",
-  "description": "Offline pump discharge pressure calculator rebuilt from the original FireBot Android app.",
+  "description": "Offline pump discharge pressure calculator with standard and updated hose-friction coefficients.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

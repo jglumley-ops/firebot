@@ -34,7 +34,7 @@
       <div class="section-heading">
         <div>
           <h2 id="calculatorTitle">PDP Calculator</h2>
-          <p>Original FireBot calculation set, rebuilt for modern phones.</p>
+          <p>Original FireBot calculations plus selectable updated hose-friction coefficients.</p>
         </div>
         <span class="offline-badge" id="networkBadge">Offline ready</span>
       </div>
@@ -53,6 +53,21 @@
         </div>
       </fieldset>
 
+      <fieldset class="segmented-fieldset">
+        <legend>Friction coefficient</legend>
+        <div class="segmented" role="radiogroup" aria-label="Friction coefficient set">
+          <label>
+            <input type="radio" name="coefficientMode" value="standard" checked>
+            <span>Standard</span>
+          </label>
+          <label>
+            <input type="radio" name="coefficientMode" value="updated">
+            <span>Updated</span>
+          </label>
+        </div>
+        <p id="coefficientNote" class="field-note">Standard mode uses the original FireBot coefficient values.</p>
+      </fieldset>
+
       <div class="form-grid">
         <label class="field fog-only" for="fogGpm">
           <span>GPM</span>
@@ -69,9 +84,19 @@
           <select id="nozzlePressure"></select>
         </label>
 
-        <label class="field" for="hoseSize">
+        <label class="field standard-coefficient-only" for="hoseSize">
           <span>Hose size</span>
           <select id="hoseSize"></select>
+        </label>
+
+        <label class="field updated-coefficient-only hidden" for="updatedHoseSize">
+          <span>Nominal hose size</span>
+          <select id="updatedHoseSize"></select>
+        </label>
+
+        <label class="field updated-coefficient-only hidden" for="updatedInternalDiameter">
+          <span>Charged / measured internal diameter</span>
+          <select id="updatedInternalDiameter"></select>
         </label>
 
         <label class="field" for="hoseLength">
@@ -104,6 +129,7 @@
         <div><span>Friction</span><strong id="flValue">—</strong><small>psi</small></div>
         <div><span>Elevation</span><strong id="epValue">—</strong><small>psi</small></div>
         <div><span>Appliance</span><strong id="apfValue">—</strong><small>psi</small></div>
+        <div><span>Coeff. C</span><strong id="cValue">—</strong><small>selected</small></div>
       </div>
       <button id="mathBtn" class="secondary-button" type="button" disabled>Show Math</button>
     </section>
@@ -115,7 +141,8 @@
     <section class="about-card">
       <details>
         <summary>About FireBot PWA</summary>
-        <p>This rebuild reproduces the formulas and lookup values recovered from the original FireBot 1.02 Android app. It has no server dependency and is designed to work offline after the first successful load.</p>
+        <p>FireBot 2.1 preserves the formulas and standard lookup values recovered from the original FireBot 1.02 Android app, and adds a selectable updated coefficient set from the supplied Table 7-3. It has no server dependency and is designed to work offline after the first successful load.</p>
+        <p><strong>Friction coefficient:</strong> choose <em>Standard</em> for the original FireBot coefficients, or <em>Updated</em> to select the nominal hose size and its charged/measured internal diameter from Table 7-3.</p>
         <p><strong>Recovered formulas:</strong> smooth-bore flow = 29.7 × d² × √NP; friction loss = C × Q² × L; elevation = 0.5 × height in feet or 5 × (stories − 1); PDP = NP + FL + APF + EP.</p>
         <p>For flows below 350 gpm, the original app applies 0 psi appliance loss. At 350 gpm or more, it applies 25 psi for a master stream or 10 psi per selected appliance.</p>
       </details>

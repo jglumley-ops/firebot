@@ -1,14 +1,15 @@
-FireBot PWA 2.1
-===============
+FireBot PWA 2.1.1
+=================
 
 This is a static Progressive Web App. No server-side code or database is required.
 
-WHAT'S NEW IN 2.1
+WHAT'S NEW IN 2.1.1
 - Added a Standard / Updated friction-coefficient selector.
 - Standard preserves the original FireBot 1.02 coefficient table.
-- Updated uses the user-supplied Table 7-3 values based on charged/measured internal hose diameter.
-- Updated table includes nominal 1.5, 1.75, 2.0 (with 1.5-in couplings), 2.25, and 2.5-in hose.
-- The result screen now shows the selected coefficient C.
+- Updated uses the supplied updated hose-friction coefficients based on charged/measured internal hose diameter.
+- The updated hose-friction coefficients include nominal 1.5, 1.75, 2.0 (with 1.5-in couplings), 2.25, and 2.5-in hose.
+- The measured internal diameter selector now shows only the internal diameter, not the coefficient value.
+- The result screen still shows the selected coefficient C after calculation.
 - The Show Math screen identifies the coefficient set, hose, measured I.D., and C value.
 
 FILES
@@ -20,7 +21,7 @@ FILES
 - icons/
 
 UPDATING AN EXISTING GITHUB PAGES INSTALL
-Upload these files over the existing files in the repository root and commit the changes. The service-worker cache name was bumped to v2.1 so installed phones can receive the new app files.
+Upload these files over the existing files in the repository root and commit the changes. The service-worker cache name was bumped to v2.1.1 so installed phones can receive the new app files.
 
 DEPLOYMENT
 PWAs need HTTPS for installation and service-worker offline caching (localhost is the development exception). Upload the CONTENTS of this folder to an HTTPS static host such as GitHub Pages.

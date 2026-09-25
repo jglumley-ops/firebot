@@ -28,8 +28,7 @@ const DATA = {
     [0.05, "6 in."],
     [0.052, "6 in. Standpipe"]
   ],
-  // Updated values transcribed from the user-provided Table 7-3,
-  // "Updated Coefficient of Friction Approximation Based on the Internal Diameter of Fire Hose."
+  // Updated hose-friction coefficients supplied by the user, based on charged/measured internal hose diameter.
   updatedHose: [
     { value: "1.5", label: "1 1/2 in. nominal", diameters: [[1.5, 29], [1.6, 21], [1.65, 18.3], [1.7, 15.75]] },
     { value: "1.75", label: "1 3/4 in. nominal", diameters: [[1.75, 13.2], [1.8, 11.5], [1.85, 10], [1.9, 8.75], [1.95, 7.7]] },
@@ -116,7 +115,7 @@ function populateUpdatedDiameters(preferredValue = null) {
     const opt = document.createElement("option");
     opt.value = String(diameter);
     opt.dataset.coefficient = String(coefficient);
-    opt.textContent = `${diameter} in. I.D. — C ${coefficient}`;
+    opt.textContent = `${diameter} in. I.D.`;
     els.updatedInternalDiameter.appendChild(opt);
   });
   if (preferredValue != null && Array.from(els.updatedInternalDiameter.options).some((o) => o.value === String(preferredValue))) {
@@ -129,7 +128,7 @@ function toggleCoefficientFields() {
   document.querySelectorAll(".standard-coefficient-only").forEach((el) => el.classList.toggle("hidden", updated));
   document.querySelectorAll(".updated-coefficient-only").forEach((el) => el.classList.toggle("hidden", !updated));
   els.coefficientNote.textContent = updated
-    ? "Updated mode uses Table 7-3 and the charged/measured internal hose diameter. Only the hose sizes shown in the supplied table are available."
+    ? "Updated mode uses the updated hose-friction coefficients and the charged/measured internal hose diameter. Only hose sizes included in the updated coefficient set are available."
     : "Standard mode uses the original FireBot coefficient values.";
 }
 
@@ -160,7 +159,7 @@ function calculate() {
     const hose = selectedUpdatedHose();
     const selectedDiameter = els.updatedInternalDiameter.selectedOptions[0];
     C = Number(selectedDiameter.dataset.coefficient);
-    coefficientMath = `Coefficient set = Updated Table 7-3\nHose = ${hose.label}\nMeasured I.D. = ${selectedDiameter.value} in.\nC = ${fmtCoefficient(C)}`;
+    coefficientMath = `Coefficient set = Updated hose-friction coefficients\nHose = ${hose.label}\nMeasured I.D. = ${selectedDiameter.value} in.\nC = ${fmtCoefficient(C)}`;
   } else {
     C = Number(els.hoseSize.value);
     const hoseLabel = els.hoseSize.selectedOptions[0]?.textContent || "Standard hose";
